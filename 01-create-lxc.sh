@@ -14,7 +14,7 @@
 set -euo pipefail
 
 # ---------- Konfiguration ----------
-CTID=200                          # Freie Container-ID auf deinem Host
+CTID=106                          # Freie Container-ID auf deinem Host
 HOSTNAME="frigate"
 STORAGE="local-lvm"                # Proxmox-Storage fuer den Container selbst
 DISK_SIZE="16"                     # GB fuer System-Disk des Containers
@@ -24,7 +24,7 @@ BRIDGE="vmbr0"                     # Dein Netzwerk-Bridge-Name
 TEMPLATE="local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
 
 # Muss auf dem Host bereits gemountet sein, z.B. per UUID in /etc/fstab!
-EXTERNAL_DRIVE_HOST_PATH="/mnt/frigate-storage"
+EXTERNAL_DRIVE_HOST_PATH="/mnt/NVR"
 EXTERNAL_DRIVE_CT_PATH="/media/frigate"
 
 # ---------- Vorbedingungen prüfen ----------
