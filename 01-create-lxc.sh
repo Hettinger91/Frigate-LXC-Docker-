@@ -1,11 +1,3 @@
-apt install -y git
-git clone https://github.com/Hettinger91/Frigate-LXC-Docker-.git
-cd <dein-repo>
-chmod +x 01-create-lxc.sh
-./01-create-lxc.sh
-
-
-
 #!/usr/bin/env bash
 #
 # 01-create-lxc.sh
