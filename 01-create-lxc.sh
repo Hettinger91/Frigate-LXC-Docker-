@@ -1,3 +1,11 @@
+apt install -y git
+git clone https://github.com/Hettinger91/Frigate-LXC-Docker-.git
+cd <dein-repo>
+chmod +x 01-create-lxc.sh
+./01-create-lxc.sh
+
+
+
 #!/usr/bin/env bash
 #
 # 01-create-lxc.sh
@@ -21,7 +29,6 @@ DISK_SIZE="16"                     # GB fuer System-Disk des Containers
 MEMORY="4096"                      # MB RAM
 CORES="4"
 BRIDGE="vmbr0"                     # Dein Netzwerk-Bridge-Name
-TEMPLATE="local:vztmpl/debian-12-standard_12.7-1_amd64.tar.zst"
 
 # Muss auf dem Host bereits gemountet sein, z.B. per UUID in /etc/fstab!
 EXTERNAL_DRIVE_HOST_PATH="/mnt/NVR"
@@ -39,10 +46,26 @@ if [[ ! -d "$EXTERNAL_DRIVE_HOST_PATH" ]]; then
   exit 1
 fi
 
-if ! pveam list local 2>/dev/null | grep -q "debian-12-standard"; then
-  echo "Debian-12-Template nicht gefunden, lade es herunter..."
-  pveam update
-  pveam download local debian-12-standard_12.7-1_amd64.tar.zst
+# ---------- Neuestes Debian-12-Template automatisch ermitteln ----------
+echo "Aktualisiere Template-Liste..."
+pveam update
+
+# Bereits lokal vorhandenes Debian-12-Template verwenden, falls vorhanden
+LOCAL_TEMPLATE=$(pveam list local 2>/dev/null | awk '{print $1}' | grep "debian-12-standard" | sort -V | tail -n1 || true)
+
+if [[ -n "$LOCAL_TEMPLATE" ]]; then
+  TEMPLATE="$LOCAL_TEMPLATE"
+  echo "Verwende bereits vorhandenes Template: $TEMPLATE"
+else
+  # Neuestes verfuegbares Debian-12-Template online suchen und laden
+  REMOTE_TEMPLATE=$(pveam available --section system | grep "debian-12-standard" | awk '{print $2}' | sort -V | tail -n1)
+  if [[ -z "$REMOTE_TEMPLATE" ]]; then
+    echo "FEHLER: Kein Debian-12-Template gefunden (weder lokal noch online)." >&2
+    exit 1
+  fi
+  echo "Lade neuestes Template herunter: $REMOTE_TEMPLATE"
+  pveam download local "$REMOTE_TEMPLATE"
+  TEMPLATE="local:vztmpl/${REMOTE_TEMPLATE}"
 fi
 
 # ---------- Container erstellen ----------
